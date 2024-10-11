@@ -15,12 +15,14 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL,
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: [process.env.CLIENT_URL, "http://localhost:5173"],
+  // Allow this specific origin
+  methods: "GET,POST,PUT,DELETE",
+  credentials: true, // Include credentials like cookies if needed
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: "50mb" })); // Increased payload limit
 app.use(
   session({
