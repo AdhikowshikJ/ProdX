@@ -80,13 +80,16 @@ export default function Create() {
 
     try {
       setIsGenerating(true);
-      const response = await axios("http://localhost:5000/generate-image", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: JSON.stringify({ formData, tasks }),
-      });
+      const response = await axios(
+        `${import.meta.env.VITE_API_BASE_URL}/generate-image`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: JSON.stringify({ formData, tasks }),
+        }
+      );
       setGeneratedImage(response.data.image);
       setShowPreview(true);
     } catch (error) {
