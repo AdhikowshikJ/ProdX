@@ -58,6 +58,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
             user.provider = "google";
             await user.save();
           }
+          console.log(user);
 
           done(null, user);
         } catch (error) {
@@ -104,6 +105,8 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
             user.provider = "github";
             await user.save();
           }
+
+          console.log(user);
 
           done(null, user);
         } catch (error) {

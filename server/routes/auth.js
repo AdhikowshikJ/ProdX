@@ -80,6 +80,7 @@ router.get("/twitter/callback", (req, res, next) => {
 
 // User info and logout routes
 router.get("/user", (req, res) => {
+  console.log(req.user);
   res.json(req.user || null);
 });
 
