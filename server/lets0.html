@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Quest Log</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Recursive:wght@300..1000&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Recursive", sans-serif;
+        background: linear-gradient(135deg, #f6f0ff 0%, #f0f9ff 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      .quest-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.05);
+        padding: 2.5rem;
+        width: 100%;
+        max-width: 52rem;
+        transform: scale(1.03);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+
+      .quest-card:hover {
+        transform: scale(1.04);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12),
+          0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+      .quest-item.completed {
+        background: rgba(57, 147, 115, 0.1);
+        text-decoration: line-through;
+        opacity: 0.7;
+      }
+
+      .quest-checkbox {
+        width: 2.25rem; /* Slightly increased size */
+        height: 2.25rem;
+        border: 2px solid #f9dfb9;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+      }
+
+      .quest-checkbox.completed {
+        background: #399373;
+        border-color: #399373;
+      }
+
+      .quest-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        transition: all 0.3s ease;
+        font-size: 1.5rem;
+        font-weight: 500;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .quest-item.completed {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        text-decoration: line-through;
+        opacity: 0.8;
+      }
+
+      .quest-checkbox {
+        width: 2.25rem;
+        height: 2.25rem;
+        border: 2px solid #399373;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      .quest-checkbox.completed {
+        background: #399373;
+        border-color: #399373;
+      }
+
+      .stat-card {
+        position: relative;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid rgba(99, 102, 241, 0.2);
+        border-radius: 1rem;
+        padding: 1rem;
+        transition: all 0.3s ease;
+        overflow: hidden;
+      }
+
+      .productivity {
+        background: linear-gradient(135deg, #ff6b6b 0%, #f03e3e 100%);
+        color: white;
+        border: none;
+      }
+
+      .hours {
+        background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+        color: white;
+        border: none;
+      }
+
+      .stat-icon {
+        position: absolute;
+        top: 50%;
+        right: -1rem;
+        opacity: 0.15;
+        transform: translateY(-50%);
+        height: 150%;
+        width: auto;
+      }
+
+      .stat-icon.one {
+        stroke: white;
+      }
+
+      .stat-icon.two {
+        stroke: white;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-card.red {
+        background: linear-gradient(135deg, #ffd8d8 0%, #ffc9c9 100%);
+        border: none;
+      }
+
+      .stat-card.green {
+        background: linear-gradient(135deg, #d3f9d8 0%, #b2f2bb 100%);
+        border: none;
+      }
+
+      .heroid {
+        font-family: "Alex Brush", cursive;
+        font-weight: 400;
+        text-align: center;
+        font-style: normal;
+        font-size: 2rem;
+      }
+
+      .lucide-icon {
+        stroke-width: 2;
+      }
+
+      /* Trophy icon - Gold */
+      .lucide-icon.trophy {
+        stroke: #ffd700;
+      }
+
+      /* Calendar icon - Sky Blue */
+      .lucide-icon.calendar {
+        stroke: #0ea5e9;
+      }
+
+      /* Star icon - Yellow */
+      .lucide-icon.star {
+        stroke: #eab308;
+      }
+
+      /* Target icon - Red */
+      .lucide-icon.target {
+        stroke: #ef4444;
+      }
+
+      /* Zap icon - Yellow */
+      .lucide-icon.zap {
+        stroke: #fbbf24;
+      }
+
+      /* Clock icon - Emerald */
+      .lucide-icon.clock {
+        stroke: #10b981;
+      }
+
+      /* Heart icon - Pink */
+      .lucide-icon.heart {
+        stroke: #ec4899;
+      }
+
+      /* Shield icon - Purple */
+      .lucide-icon.shield {
+        stroke: red;
+      }
+
+      /* User icon - Blue */
+      .lucide-icon.user {
+        stroke: #3b82f6;
+      }
+
+      /* Sparkles icon - Gold */
+      .lucide-icon.sparkles {
+        stroke: #fbbf24;
+      }
+
+      /* Check icon - Emerald */
+      .lucide-icon.check {
+        stroke: #10b981;
+      }
+
+      /* Chart icon - White with increased opacity */
+      .lucide-icon.chart {
+        stroke: rgba(255, 255, 255, 0.9);
+      }
+
+      /* Timer icon - White with increased opacity */
+      .lucide-icon.timer {
+        stroke: rgba(255, 255, 255, 0.9);
+      }
+      h1 {
+        background: linear-gradient(135deg, #e54646 0%, #f16363 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+      }
+      h2 {
+        background: linear-gradient(135deg, #e54646 0%, #f16363 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  </head>
+  <body>
+    <div class="max-w-2xl mx-auto quest-card">
+      <div class="text-center mb-8">
+        <h1
+          class="text-3xl font-bold flex items-center text-[#24130f] justify-center gap-3"
+        >
+          <i data-lucide="trophy" class="lucide-icon trophy"></i>
+          Todays Progress
+          <i data-lucide="trophy" class="lucide-icon trophy"></i>
+        </h1>
+      </div>
+
+      <!-- Date and Day Section -->
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="stat-card">
+          <div class="flex items-center gap-2 font-medium mb-2">
+            <i data-lucide="calendar" class="lucide-icon calendar"></i>
+            Date
+          </div>
+          <p class="text-xl font-bold text-black" id="date">date</p>
+        </div>
+        <div class="stat-card">
+          <div class="flex items-center gap-2 font-medium mb-2">
+            <i data-lucide="star" class="lucide-icon star"></i> Streak
+          </div>
+          <p class="text-2xl font-bold text-black" id="day">day</p>
+        </div>
+      </div>
+
+      <!-- Epic Quests Section -->
+      <div class="mb-6">
+        <h2 class="flex items-center gap-2 font-medium text-2xl mb-4">
+          <i data-lucide="target" class="lucide-icon target"></i> Goals
+        </h2>
+        <div class="space-y-4" id="questList"></div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="stat-card productivity">
+          <div class="flex items-center gap-2 font-medium mb-2">
+            <i data-lucide="zap" class="lucide-icon timer"></i>
+            <p class="text-white font-bold text-xl">Productivity</p>
+          </div>
+          <p class="text-2xl font-bold text-white" id="powerLevel">power</p>
+          <i data-lucide="chart-no-axes-combined" class="stat-icon chart"></i>
+        </div>
+        <div class="stat-card hours">
+          <div class="flex items-center gap-2 font-medium mb-2">
+            <i data-lucide="clock" class="lucide-icon timer"></i>
+            <p class="text-white font-bold text-xl">Time Spent</p>
+          </div>
+          <p class="text-2xl font-bold text-white">
+            <span id="hours">6</span> hours
+          </p>
+          <i data-lucide="timer" class="stat-icon timer"></i>
+        </div>
+      </div>
+
+      <!-- Gratitude Section -->
+      <div class="stat-card green mb-6">
+        <div class="flex items-center gap-2 font-bold text-xl mb-2">
+          <i data-lucide="heart" class="lucide-icon heart"></i> Gratitude
+        </div>
+        <p class="font-bold text-gray-800" id="gratitude">g</p>
+      </div>
+
+      <!-- Battle Challenges Section -->
+      <div class="stat-card red mb-6">
+        <div class="flex items-center gap-2 font-bold text-xl mb-2">
+          <i data-lucide="shield" class="lucide-icon shield"></i>
+          <p>Difficulties</p>
+        </div>
+        <p class="font-bold text-gray-800" id="challenges">challenges</p>
+      </div>
+
+      <!-- Hero Name -->
+      <div class="flex justify-end">
+        <div>
+          <div class="flex items-center gap-3 font-bold text-xl mb-3">
+            <i data-lucide="user" class="lucide-icon user"></i> Signature
+          </div>
+          <p class="text-xl heroid" id="username">Adhikowshik</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Activate Lucide icons
+      lucide.createIcons();
+
+      // Example quest data
+
+      // Re-activate icons after dynamically adding content
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
