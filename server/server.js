@@ -80,7 +80,7 @@ try {
   process.exit(1);
 }
 
-pp.post("/generate-image", async (req, res) => {
+app.post("/generate-image", async (req, res) => {
   let browser;
   console.log(req.body);
   try {
