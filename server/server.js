@@ -80,7 +80,7 @@ try {
   process.exit(1);
 }
 
-app.post("/generate-image", async (req, res) => {
+pp.post("/generate-image", async (req, res) => {
   let browser;
   console.log(req.body);
   try {
@@ -111,12 +111,13 @@ app.post("/generate-image", async (req, res) => {
                  ? '<i data-lucide="check" class="lucide-icon check"></i>'
                  : ""
              }
-
           </div>
         `;
       })
-      .join(""); // Join the array of HTML strings into a single string
+      .join("");
+
     console.log(taskHtml);
+
     // Replace the values in the template
     const replacements = {
       'id="date">date': `id="date">${date || "No date"}`,
@@ -128,7 +129,7 @@ app.post("/generate-image", async (req, res) => {
         suckedAt || "No challenges recorded"
       }`,
       'id="username">Adhikowshik': `id="username">${username || "Anonymous"}`,
-      '<div class="space-y-4" id="questList"></div>': `<div class="space-y-4" id="questList">${taskHtml}</div>`, // Inject the dynamic task HTML here
+      '<div class="space-y-4" id="questList"></div>': `<div class="space-y-4" id="questList">${taskHtml}</div>`,
     };
 
     // Apply all replacements
@@ -149,9 +150,8 @@ app.post("/generate-image", async (req, res) => {
         "--disable-web-security",
       ],
       executablePath:
-        process.env.NODE_ENV === "production"
-          ? "/usr/bin/google-chrome-stable" // Use system Chrome in production
-          : puppeteer.executablePath(), // Use bundled Chrome in development
+        process.env.PUPPETEER_EXECUTABLE_PATH ||
+        "/usr/bin/google-chrome-stable",
     });
 
     const page = await browser.newPage();
