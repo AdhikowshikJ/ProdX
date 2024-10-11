@@ -143,10 +143,15 @@ app.post("/generate-image", async (req, res) => {
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
-        "--disable-accelerated-2d-canvas",
         "--disable-gpu",
         "--window-size=1080,1350",
+        "--font-render-hinting=none",
+        "--disable-web-security",
       ],
+      executablePath:
+        process.env.NODE_ENV === "production"
+          ? "/usr/bin/google-chrome-stable" // Use system Chrome in production
+          : puppeteer.executablePath(), // Use bundled Chrome in development
     });
 
     const page = await browser.newPage();
@@ -158,7 +163,7 @@ app.post("/generate-image", async (req, res) => {
     });
 
     // Wait for fonts and external resources
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     // Set viewport and take the screenshot
     await page.setViewport({
