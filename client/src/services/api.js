@@ -2,22 +2,37 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
+  withCredentials: true, // This is crucial for sending cookies
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-export const getUser = () =>
-  api.get(`${import.meta.env.VITE_API_BASE_URL}/auth/user`);
-export const logout = () =>
-  api.post(`${import.meta.env.VITE_API_BASE_URL}/auth/logout`); // Changed to POST request
+// Simplified API calls - no need to include base URL again as it's in axios config
+export const getUser = () => api.get("/auth/user");
+export const logout = () => api.post("/auth/logout");
 
-// Add error interceptor
-api.interceptors.response.use(
-  (response) => response,
+// Add request interceptor for debugging
+api.interceptors.request.use(
+  (config) => {
+    console.log("Making request to:", config.url);
+    return config;
+  },
   (error) => {
+    console.error("Request error:", error);
+    return Promise.reject(error);
+  }
+);
+
+// Enhanced response interceptor
+api.interceptors.response.use(
+  (response) => {
+    console.log("Response received:", response.status);
+    return response;
+  },
+  (error) => {
+    console.error("Response error:", error.response || error);
     if (error.response?.status === 401) {
-      // Handle unauthorized access
       window.location.href = "/login";
     }
     return Promise.reject(error);
