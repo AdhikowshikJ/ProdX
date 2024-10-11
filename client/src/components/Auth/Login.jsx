@@ -26,7 +26,9 @@ const Login = () => {
   }, [searchParams]);
 
   const handleLogin = (provider) => {
-    window.location.href = `http://localhost:5000/auth/${provider}`;
+    window.location.href = `${
+      import.meta.env.VITE_API_BASE_URL
+    }/auth/${provider}`;
   };
 
   return (
