@@ -8,18 +8,21 @@ const authRoutes = require("./routes/auth");
 const puppeteer = require("puppeteer");
 const path = require("path");
 const fs = require("fs");
+const MongoStore = require("connect-mongo");
 
 const app = express();
 
 // Connect to MongoDB
 connectDB();
 
-// Middleware
 const corsOptions = {
-  origin: [process.env.CLIENT_URL, "http://localhost:5173"],
-  // Allow this specific origin
-  methods: "GET,POST,PUT,DELETE",
-  credentials: true, // Include credentials like cookies if needed
+  origin:
+    process.env.NODE_ENV === "production"
+      ? process.env.CLIENT_URL
+      : [process.env.CLIENT_URL, "http://localhost:5173"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
@@ -29,16 +32,39 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      collectionName: "sessions",
+    }),
     cookie: {
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production", // true in production
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      domain:
+        process.env.NODE_ENV === "production"
+          ? process.env.COOKIE_DOMAIN // Add this to your env variables
+          : undefined,
     },
+    proxy: true, // Important when behind a reverse proxy
   })
 );
+
+// Trust proxy - important for secure cookies in production
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
 
 app.use(passport.initialize());
 app.use(passport.session());
 require("./config/passport");
+
+// Add session debugging middleware
+app.use((req, res, next) => {
+  console.log("Session ID:", req.sessionID);
+  console.log("Session:", req.session);
+  console.log("User:", req.user);
+  next();
+});
 
 app.use("/auth", authRoutes);
 
