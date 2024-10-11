@@ -26,7 +26,11 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json({ limit: "50mb" })); // Increased payload limit
+app.use(express.json({ limit: "50mb" }));
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+// Increased payload limit
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -35,33 +39,31 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
       collectionName: "sessions",
+      ttl: 24 * 60 * 60, // 1 day
+      autoRemove: "native",
+      stringify: false, // Store sessions as objects rather than strings
     }),
     cookie: {
-      secure: process.env.NODE_ENV === "production", // true in production
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      domain:
-        process.env.NODE_ENV === "production"
-          ? process.env.COOKIE_DOMAIN // Add this to your env variables
-          : undefined,
+      secure: true, // Always use secure in production
+      sameSite: "none",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      httpOnly: true,
     },
-    proxy: true, // Important when behind a reverse proxy
+    name: "sessionId", // Custom cookie name
   })
 );
 
 // Trust proxy - important for secure cookies in production
-if (process.env.NODE_ENV === "production") {
-  app.set("trust proxy", 1);
-}
 
 app.use(passport.initialize());
 app.use(passport.session());
 require("./config/passport");
 
-// Add session debugging middleware
+// Debug middleware
 app.use((req, res, next) => {
   console.log("Session ID:", req.sessionID);
   console.log("Session:", req.session);
+  console.log("Is Authenticated:", req.isAuthenticated());
   console.log("User:", req.user);
   next();
 });
