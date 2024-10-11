@@ -5,6 +5,7 @@ import { Shield, Trophy, CheckCircle2 } from "lucide-react";
 
 const Profile = () => {
   const { user, setUser } = useAuth();
+  console.log(user);
 
   const handleLogout = async () => {
     await logout();

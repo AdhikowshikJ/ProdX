@@ -30,6 +30,7 @@ import { useAuth } from "../../context/AuthContext";
 export default function Home() {
   const { user } = useAuth();
   const action = user ? "create" : "login";
+  console.log(user);
   return (
     <div className="bg-[#fcf3e4]">
       {/* Hero Section */}
