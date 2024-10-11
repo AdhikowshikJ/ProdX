@@ -1,13 +1,9 @@
 services:
   - type: web
-    name: your-app-name
-    env: node
-    buildCommand: npm install
-    startCommand: node server.js
+    name: server
+    env: docker
+    buildCommand: docker build -t server .
+    startCommand: docker run -p $PORT:$PORT -e PORT=$PORT server
     envVars:
       - key: NODE_ENV
         value: production
-    buildFilter:
-      paths:
-        - server/**
-    dockerfile: Dockerfile
