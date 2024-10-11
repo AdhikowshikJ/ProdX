@@ -56,31 +56,9 @@ router.get("/github/callback", (req, res, next) => {
   })(req, res, next);
 });
 
-// Twitter auth routes
-router.get("/twitter", (req, res, next) => {
-  if (!strategyExists("twitter")) {
-    return res
-      .status(503)
-      .json({ message: "Twitter authentication is not configured" });
-  }
-  passport.authenticate("twitter")(req, res, next);
-});
-
-router.get("/twitter/callback", (req, res, next) => {
-  if (!strategyExists("twitter")) {
-    return res.redirect(
-      `${process.env.CLIENT_URL}/login?error=twitter_auth_not_configured`
-    );
-  }
-  passport.authenticate("twitter", {
-    successRedirect: process.env.CLIENT_URL,
-    failureRedirect: `${process.env.CLIENT_URL}/login`,
-  })(req, res, next);
-});
-
 // User info and logout routes
 router.get("/user", (req, res) => {
-  console.log(req.user);
+  console.log("from auth.js ", req.user);
   res.json(req.user || null);
 });
 
