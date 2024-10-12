@@ -16,6 +16,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isGithubLoading, setIsGithubLoading] = useState(false);
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
 
   useEffect(() => {
     const errorParam = searchParams.get("error");
@@ -26,31 +27,32 @@ const Login = () => {
       };
       setError(errorMessages[errorParam] || "Authentication error occurred");
     }
+    const timer = setTimeout(() => setIsPageLoaded(true), 100);
+    return () => clearTimeout(timer);
   }, [searchParams]);
-  const handleLogin = async (provider) => {
+
+  const handleLogin = (provider) => {
+    if (!isPageLoaded) return;
+
     if (provider === "google") {
       setIsGoogleLoading(true);
     } else if (provider === "github") {
       setIsGithubLoading(true);
     }
 
-    try {
-      window.location.href = `${
-        import.meta.env.VITE_API_BASE_URL
-      }/auth/${provider}`;
-    } catch (error) {
-      console.error(`Error during ${provider} login:`, error);
-      setError(`An error occurred during ${provider} login. Please try again.`);
-    } finally {
-      // Note: This won't actually run due to the page redirect,
-      // but it's good practice to include it
-      if (provider === "google") {
-        setIsGoogleLoading(false);
-      } else if (provider === "github") {
-        setIsGithubLoading(false);
-      }
-    }
+    // Use setTimeout to ensure the state update has occurred
+    setTimeout(() => {
+      const authUrl = `${import.meta.env.VITE_API_BASE_URL}/auth/${provider}`;
+      window.location.href = authUrl;
+    }, 100);
   };
+  if (!isPageLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fcf3e4]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#399373]" />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen flex bg-[#fcf3e4]">
       {/* Left Section - Login Form */}
