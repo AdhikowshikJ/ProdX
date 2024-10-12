@@ -29,7 +29,9 @@ import { useAuth } from "../../context/AuthContext";
 
 export default function Home() {
   const { user } = useAuth();
-  const action = user ? "create" : "login";
+  // const action = user ? "create" : "login";
+
+  const action = "create";
 
   return (
     <div className="bg-[#fcf3e4]">
