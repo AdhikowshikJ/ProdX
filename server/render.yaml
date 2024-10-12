@@ -1,9 +1,11 @@
 services:
   - type: web
-    name: server
-    env: docker
-    buildCommand: docker build -t server .
-    startCommand: docker run -p $PORT:$PORT -e PORT=$PORT server
+    name: ProdX
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
     envVars:
-      - key: NODE_ENV
-        value: production
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: true
+    packages:
+      - google-chrome-stable

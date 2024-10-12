@@ -138,8 +138,7 @@ app.post("/generate-image", async (req, res) => {
     }
 
     // Launch puppeteer for rendering the HTML as an image
-    browser = await puppeteer.launch({
-      headless: "new",
+    const puppeteerConfig = {
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
@@ -149,11 +148,20 @@ app.post("/generate-image", async (req, res) => {
         "--font-render-hinting=none",
         "--disable-web-security",
       ],
-      executablePath:
-        process.env.PUPPETEER_EXECUTABLE_PATH ||
-        "/usr/bin/google-chrome-stable",
-    });
+    };
 
+    // Check if we're running on Render
+    if (process.env.RENDER) {
+      puppeteerConfig.executablePath =
+        process.env.PUPPETEER_EXECUTABLE_PATH || "google-chrome-stable";
+      browser = await puppeteer.launch(puppeteerConfig);
+    } else {
+      // For local development
+      browser = await puppeteer.launch({
+        headless: "new",
+        ...puppeteerConfig,
+      });
+    }
     const page = await browser.newPage();
 
     // Set content and wait for the page to load fully
