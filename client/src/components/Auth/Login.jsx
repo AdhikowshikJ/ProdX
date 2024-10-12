@@ -8,11 +8,14 @@ import {
   Trophy,
   Target,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 
 const Login = () => {
   const [searchParams] = useSearchParams();
   const [error, setError] = useState("");
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isGithubLoading, setIsGithubLoading] = useState(false);
 
   useEffect(() => {
     const errorParam = searchParams.get("error");
@@ -24,13 +27,30 @@ const Login = () => {
       setError(errorMessages[errorParam] || "Authentication error occurred");
     }
   }, [searchParams]);
+  const handleLogin = async (provider) => {
+    if (provider === "google") {
+      setIsGoogleLoading(true);
+    } else if (provider === "github") {
+      setIsGithubLoading(true);
+    }
 
-  const handleLogin = (provider) => {
-    window.location.href = `${
-      import.meta.env.VITE_API_BASE_URL
-    }/auth/${provider}`;
+    try {
+      window.location.href = `${
+        import.meta.env.VITE_API_BASE_URL
+      }/auth/${provider}`;
+    } catch (error) {
+      console.error(`Error during ${provider} login:`, error);
+      setError(`An error occurred during ${provider} login. Please try again.`);
+    } finally {
+      // Note: This won't actually run due to the page redirect,
+      // but it's good practice to include it
+      if (provider === "google") {
+        setIsGoogleLoading(false);
+      } else if (provider === "github") {
+        setIsGithubLoading(false);
+      }
+    }
   };
-
   return (
     <div className="min-h-screen flex bg-[#fcf3e4]">
       {/* Left Section - Login Form */}
@@ -62,9 +82,13 @@ const Login = () => {
                        rounded-xl text-white bg-[#399373] hover:bg-opacity-90 
                        transition-all duration-300 hover:scale-105 shadow-lg 
                        hover:shadow-xl focus:outline-none focus:ring-2 
-                       focus:ring-offset-2 focus:ring-[#399373]"
+                       focus:ring-offset-2 focus:ring-[#399373] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <FaGoogle className="mr-3 text-xl" />
+              {isGoogleLoading ? (
+                <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+              ) : (
+                <FaGoogle className="mr-3 text-xl" />
+              )}
               Sign in with Google
             </button>
 
@@ -75,9 +99,13 @@ const Login = () => {
                        hover:bg-opacity-90 transition-all duration-300 
                        hover:scale-105 shadow-lg hover:shadow-xl 
                        focus:outline-none focus:ring-2 focus:ring-offset-2 
-                       focus:ring-[#24130f]"
+                       focus:ring-[#24130f] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <FaGithub className="mr-3 text-xl" />
+              {isGithubLoading ? (
+                <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+              ) : (
+                <FaGithub className="mr-3 text-xl" />
+              )}
               Sign in with GitHub
             </button>
           </div>
