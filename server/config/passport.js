@@ -49,6 +49,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: `${process.env.SERVER_URL}/auth/google/callback`,
         proxy: true,
+        passReqToCallback: true,
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
@@ -108,6 +109,7 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
         callbackURL: `${process.env.SERVER_URL}/auth/github/callback`,
         scope: ["user:email"],
         proxy: true,
+        passReqToCallback: true,
       },
       async (accessToken, refreshToken, profile, done) => {
         try {

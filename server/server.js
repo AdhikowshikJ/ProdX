@@ -61,6 +61,8 @@ app.use(
       mongoUrl: process.env.MONGODB_URI,
       collectionName: "sessions",
       ttl: 7 * 24 * 60 * 60, // 7 days
+      stringify: true,
+      autoRemove: "native",
     }),
     cookie: {
       secure: true, // Always use HTTPS
@@ -82,6 +84,12 @@ app.use((req, res, next) => {
   console.log("Session:", req.session);
   console.log("Is Authenticated:", req.isAuthenticated());
   console.log("User:", req.user);
+  next();
+});
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", true);
+  res.header("Access-Control-Allow-Origin", process.env.CLIENT_URL);
   next();
 });
 
