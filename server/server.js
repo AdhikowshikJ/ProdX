@@ -30,7 +30,7 @@ app.use(express.json({ limit: "50mb" }));
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
-// Increased payload limit
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -39,27 +39,24 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
       collectionName: "sessions",
-      ttl: 24 * 60 * 60, // 1 day
+      ttl: 24 * 60 * 60,
       autoRemove: "native",
-      stringify: false, // Store sessions as objects rather than strings
+      stringify: false,
     }),
     cookie: {
-      secure: true, // Always use secure in production
-      sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
     },
-    name: "sessionId", // Custom cookie name
+    name: "sessionId",
   })
 );
-
-// Trust proxy - important for secure cookies in production
 
 app.use(passport.initialize());
 app.use(passport.session());
 require("./config/passport");
 
-// Debug middleware
 app.use((req, res, next) => {
   console.log("Session ID:", req.sessionID);
   console.log("Session:", req.session);
@@ -70,7 +67,6 @@ app.use((req, res, next) => {
 
 app.use("/auth", authRoutes);
 
-// Template loading - added error handling
 const templatePath = path.join(__dirname, "lets0.html");
 let htmlTemplate;
 try {
@@ -90,10 +86,8 @@ app.post("/generate-image", async (req, res) => {
 
     console.log(tasks);
 
-    // Create a copy of the template
     let modifiedHtml = htmlTemplate;
 
-    // Generate dynamic task list HTML
     const taskHtml = tasks
       .map((task) => {
         return `
@@ -118,7 +112,6 @@ app.post("/generate-image", async (req, res) => {
 
     console.log(taskHtml);
 
-    // Replace the values in the template
     const replacements = {
       'id="date">date': `id="date">${date || "No date"}`,
       'id="day">day': `id="day">${day || "0"}`,
@@ -132,12 +125,10 @@ app.post("/generate-image", async (req, res) => {
       '<div class="space-y-4" id="questList"></div>': `<div class="space-y-4" id="questList">${taskHtml}</div>`,
     };
 
-    // Apply all replacements
     for (const [find, replace] of Object.entries(replacements)) {
       modifiedHtml = modifiedHtml.replace(find, replace);
     }
 
-    // Launch puppeteer for rendering the HTML as an image
     const puppeteerConfig = {
       args: [
         "--no-sandbox",
@@ -148,39 +139,31 @@ app.post("/generate-image", async (req, res) => {
         "--font-render-hinting=none",
         "--disable-web-security",
       ],
+      headless: "new",
     };
 
-    // Check if we're running on Render
     if (process.env.RENDER) {
       puppeteerConfig.executablePath =
-        process.env.PUPPETEER_EXECUTABLE_PATH || "google-chrome-stable";
-      browser = await puppeteer.launch(puppeteerConfig);
-    } else {
-      // For local development
-      browser = await puppeteer.launch({
-        headless: "new",
-        ...puppeteerConfig,
-      });
+        process.env.PUPPETEER_EXECUTABLE_PATH ||
+        "/usr/bin/google-chrome-stable";
     }
+
+    browser = await puppeteer.launch(puppeteerConfig);
     const page = await browser.newPage();
 
-    // Set content and wait for the page to load fully
     await page.setContent(modifiedHtml, {
       waitUntil: ["networkidle0", "domcontentloaded"],
       timeout: 30000,
     });
 
-    // Wait for fonts and external resources
     await new Promise((resolve) => setTimeout(resolve, 5000));
 
-    // Set viewport and take the screenshot
     await page.setViewport({
       width: 1080,
       height: 1350,
       deviceScaleFactor: 2,
     });
 
-    // Capture the screenshot as PNG
     const imageBuffer = await page.screenshot({
       type: "png",
       fullPage: false,
@@ -199,7 +182,6 @@ app.post("/generate-image", async (req, res) => {
 
     var b64 = Buffer.from(imageBuffer).toString("base64");
 
-    // Send buffer
     res.json({
       image: `data:image/png;base64,${b64}`,
     });
@@ -221,7 +203,6 @@ app.post("/generate-image", async (req, res) => {
 app.get("/test-image", async (req, res) => {
   let browser;
   try {
-    // Simple HTML for testing
     const testHtml = `
       <!DOCTYPE html>
       <html>
@@ -232,10 +213,18 @@ app.get("/test-image", async (req, res) => {
       </html>
     `;
 
-    browser = await puppeteer.launch({
-      headless: "new",
+    const puppeteerConfig = {
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+      headless: "new",
+    };
+
+    if (process.env.RENDER) {
+      puppeteerConfig.executablePath =
+        process.env.PUPPETEER_EXECUTABLE_PATH ||
+        "/usr/bin/google-chrome-stable";
+    }
+
+    browser = await puppeteer.launch(puppeteerConfig);
 
     const page = await browser.newPage();
     await page.setContent(testHtml);
@@ -246,13 +235,9 @@ app.get("/test-image", async (req, res) => {
       fullPage: false,
     });
 
-    // Save the image buffer to a file
-    fs.writeFileSync("test-image.png", imageBuffer);
-
-    // Send the image as a response
     res.set("Content-Type", "image/png");
     res.send(imageBuffer);
-    console.log("Image saved as test-image.png");
+    console.log("Test image sent.");
   } catch (error) {
     console.error("Test image error:", error);
     res.status(500).json({ error: error.message });
@@ -261,7 +246,6 @@ app.get("/test-image", async (req, res) => {
   }
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error("Server error:", err);
   res.status(500).json({
