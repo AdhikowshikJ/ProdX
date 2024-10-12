@@ -302,7 +302,10 @@ export default function Create() {
                   </span>
                 </div>
               ) : (
-                <form onSubmit={handleAddTask} className="flex gap-2">
+                <form
+                  onSubmit={handleAddTask}
+                  className="flex flex-col sm:flex-row gap-2"
+                >
                   <input
                     type="text"
                     required
@@ -315,7 +318,7 @@ export default function Create() {
                   <button
                     type="submit"
                     className="px-4 py-2 bg-[#399373] text-white rounded-xl hover:bg-opacity-90 transform 
-                             hover:scale-105 transition-all flex items-center gap-2"
+                             hover:scale-105 transition-all flex items-center justify-center gap-2"
                   >
                     <Sparkles size={16} />
                     Add Quest
