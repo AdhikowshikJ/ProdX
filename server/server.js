@@ -31,6 +31,27 @@ if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
 
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//     store: MongoStore.create({
+//       mongoUrl: process.env.MONGODB_URI,
+//       collectionName: "sessions",
+//       ttl: 24 * 60 * 60,
+//       autoRemove: "native",
+//       stringify: false,
+//     }),
+//     cookie: {
+//       secure: process.env.NODE_ENV === "production",
+//       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+//       maxAge: 24 * 60 * 60 * 1000,
+//       httpOnly: true,
+//     },
+//     name: "sessionId",
+//   })
+// );
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -39,16 +60,15 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
       collectionName: "sessions",
-      ttl: 24 * 60 * 60,
-      autoRemove: "native",
-      stringify: false,
+      ttl: 7 * 24 * 60 * 60, // 7 days
     }),
     cookie: {
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 1000,
+      secure: true, // Always use HTTPS
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       httpOnly: true,
     },
+    proxy: true, // trust the reverse proxy
     name: "sessionId",
   })
 );
