@@ -12,7 +12,6 @@ export const AuthProvider = ({ children }) => {
       try {
         const { data } = await getUser();
         setUser(data);
-        console.log(data);
       } catch (error) {
         console.error("Error fetching user:", error);
       } finally {

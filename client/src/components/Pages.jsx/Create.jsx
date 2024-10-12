@@ -77,7 +77,6 @@ export default function Create() {
       setShowToast(true);
       return;
     }
-    console.log("from create", import.meta.env.VITE_API_BASE_URL);
 
     try {
       setIsGenerating(true);

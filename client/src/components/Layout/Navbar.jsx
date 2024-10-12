@@ -13,7 +13,6 @@ import {
 const Navbar = () => {
   const auth = useAuth();
   const location = useLocation();
-  console.log("auth is", auth);
 
   if (location.pathname === "/login") {
     return null;

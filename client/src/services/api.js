@@ -15,7 +15,6 @@ export const logout = () => api.post("/auth/logout");
 // Add request interceptor for debugging
 api.interceptors.request.use(
   (config) => {
-    console.log("Making request to:", config.url);
     return config;
   },
   (error) => {
@@ -27,7 +26,6 @@ api.interceptors.request.use(
 // Enhanced response interceptor
 api.interceptors.response.use(
   (response) => {
-    console.log("Response received:", response.status);
     return response;
   },
   (error) => {
