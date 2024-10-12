@@ -1,3 +1,4 @@
+// AuthContext.js
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { getUser } from "../services/api";
 
@@ -12,8 +13,11 @@ export const AuthProvider = ({ children }) => {
       try {
         const { data } = await getUser();
         setUser(data);
+        console.log("user from auth", data);
       } catch (error) {
         console.error("Error fetching user:", error);
+        // Set user to null if there's an error (user is not authenticated)
+        setUser(null);
       } finally {
         setLoading(false);
       }
