@@ -11,6 +11,7 @@ import Terms from "./components/Pages.jsx/Terms";
 import Home from "./components/Pages.jsx/Home";
 import Created from "./components/Pages.jsx/Created";
 import Create from "./components/Pages.jsx/Create";
+import { Analytics } from "@vercel/analytics/react";
 
 const App = () => {
   return (
@@ -38,6 +39,7 @@ const App = () => {
           <Footer />
         </div>
       </Router>
+      <Analytics />
     </AuthProvider>
   );
 };
